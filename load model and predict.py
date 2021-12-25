@@ -1,0 +1,45 @@
+import matplotlib.pyplot as plt
+from keras.models import load_model
+from keras.preprocessing.image import image
+import numpy as np
+import glob
+import os
+import cv2
+
+classifier=load_model("model3.h5")
+
+def load_image(img_path, show=False):
+    img_original = image.load_img(img_path)
+    img = image.load_img(img_path, target_size=(64, 64))
+    img_tensor = image.img_to_array(img)                    # (height, width, channels)
+    img_tensor = np.expand_dims(img_tensor, axis=0)         # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
+    img_tensor /= 255.                                      # imshow expects values in the range [0, 1]
+    if show:
+        plt.imshow(img_original)
+        plt.axis('off')
+        plt.show()
+    return img_tensor
+
+import glob
+for img_file in glob.iglob("model/*"):
+  new_image = load_image(img_file)
+  pred = classifier.predict(new_image)
+  if pred<.5 : print("Hourse")
+  else : print("Human")
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder,filename))
+        if img is not None:
+            images.append(img)
+    return images
+
+
+
+# img_name = input("Enter Image Name : ")
+# new_image = load_image(img_name)
+# pred = classifier.predict(new_image)  # predict() function may be used when flask is not used
+# if pred<.5 : print("Hourse")
+# else : print("Human")
+
+
